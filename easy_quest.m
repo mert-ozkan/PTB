@@ -1,12 +1,9 @@
-%%
-
-%%
 function varargout = easy_quest(varargin)
 % Quest function made easy, especially if youre tracking multiple stimuli
 % in the same experimental session.
 for idx = 1:length(varargin)
     argN = varargin{idx};
-    if isscalar(argN) || ischar(argN)
+    if ~isstruct(argN) && (isscalar(argN) || ischar(argN))
         switch argN
             case 'Create'
                 mode = argN;
@@ -27,7 +24,26 @@ for idx = 1:length(varargin)
             case 'NormalizePDF'
                 isNormPDF = varargin{idx+1};
             case 'StimulusTypes'
-                stim_tipX = varargin{idx+1};                
+                stim_tipX = varargin{idx+1};    
+            case 'Quantile'
+                mode = argN;
+                qst = varargin{idx+1};
+                isMult = false;
+            case 'Update'
+                mode = argN;
+                qst = varargin{idx+1};
+                prevEst = varargin{idx+2};
+                rxn = varargin{idx+3};
+                isMult = false;
+            case 'Result'
+                mode = argN;
+                qst = varargin{idx+1};
+                isMult = false;
+            case 'Condition'
+                stim_nm = num2str(varargin{idx+1});
+                stim_nm(stim_nm==' ') = '';
+                stim_nm = sprintf('Stim%s',stim_nm);
+                isMult = true;
         end
     end
 end
@@ -45,8 +61,30 @@ switch mode
         if length(stim_nmX) == 1
             qst = qst.(whStim);
         end
-        varargout{1} = qst;       
-        
+        varargout{1} = qst;
+    case 'Quantile'
+        if isMult
+            intensity = QuestQuantile(qst.(stim_nm));
+        else
+            intensity = QuestQuantile(qst);
+        end
+        varargout{1} = intensity;
+    case 'Update'
+        if isMult
+            qst.(stim_nm) = QuestUpdate(qst.(stim_nm),prevEst,rxn);
+        else
+            qst = QuestUpdate(qst,prevEst,rxn);
+        end
+        varargout{1} = qst;
+    case 'Result'
+        if isMult
+            varargout{1} = QuestMean(qst.(stim_nm));
+            varargout{2} = QuestSd(qst.(stim_nm));
+        else
+            varargout{1} = QuestMean(qst);
+            varargout{2} = QuestSd(qst);
+        end
+        varargout{1} = qst;
 end
 end
 %%
