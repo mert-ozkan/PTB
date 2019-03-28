@@ -15,7 +15,7 @@ for idx = 1:length(varargin)
         end
     end
 end
-Screen('TextSize',w,sz)
+Screen('TextSize',w,sz);
  
 if length(text)>1
     for whText = 1:length(text)

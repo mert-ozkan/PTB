@@ -1,7 +1,4 @@
 function varargout = reaction(keys)
-
-isRxn = false;
-isEndSxn = false;
 isKeyOpt = false;
 if nargin < 1
     isKeyOpt = true;
@@ -9,7 +6,9 @@ end
 
 [keyisdown,keycode] = PsychHID('KbQueueCheck');
 if keyisdown
-    key = KbName(find(keycode));
+    isEndSxn = false;
+    isRxn = false;
+    key = KbName(find(keycode));    
     if strcmpi(key,'ESCAPE')
         isEndSxn = true;
         isRxn = false;

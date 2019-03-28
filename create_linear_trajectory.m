@@ -1,4 +1,4 @@
-function [hor_coord, ver_coord] = create_linear_trajectory(cfg,varargin)
+function [hor_coord, ver_coord] = create_linear_trajectory(cfg)
 % cfg.trialduration
 % cfg.framerate
 % cfg.degrees_persecond
@@ -10,36 +10,6 @@ function [hor_coord, ver_coord] = create_linear_trajectory(cfg,varargin)
 % cfg.distancefromcenter
 % cfg.xcenter
 % cfg.ycenter
-%
-% If create_linear_trajectory(cfg,'Line', x, y,length_inpix, angle,'PinTheLineAt','middle'/'initial'/'terminal')
-% cfg = [];
-%
-
-isLine = false;
-if ~isempty(varargin)
-    for idx = 1:length(varargin)
-        argN = varargin{idx};
-        if isscalar(argN) || ischar(argN)
-            switch argN
-                case 'Line'
-                    isLine = true;
-                    cfg.trialduration = varargin{idx+3};
-                    cfg.framerate = 1;
-                    cfg.degrees_persecond = 1;
-                    cfg.horizontalpixels_perdegree = 1;
-                    cfg.verticalpixels_perdegree = 1;
-                    cfg.equidistant_point = 'middle';
-                    cfg.angleoftrajectory = varargin{idx+4};
-                    cfg.angleofinitialpointvector = 0;
-                    cfg.distancefromcenter = 0;
-                    cfg.xcenter = varargin{idx+1};
-                    cfg.ycenter = varargin{idx+2};
-                case 'PinTheLineAt'
-                    cfg.equidistant_point = varargin{idx+1};
-            end
-        end
-    end
-end
 
 qFrm = round(cfg.trialduration*cfg.framerate);
 frm_rate = cfg.framerate;
@@ -68,11 +38,6 @@ y_cent = cfg.ycenter;
 [hor_shift, ver_shift] = rotate_origin_vector(dist_deCent,th_deInitPtVec,hor_ppd,ver_ppd);
 hor_coord = hor_coord + hor_shift + x_cent;
 ver_coord = ver_coord - ver_shift + y_cent;
-
-if isLine
-    hor_coord = [min(hor_coord), max(hor_coord)];
-    ver_coord = [min(ver_coord), max(ver_coord)];
-end
 end
 
 %% Function that gives pixel size in x and y coordinates separately for any vector with a certain angle:
