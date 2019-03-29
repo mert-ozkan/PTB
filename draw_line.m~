@@ -1,3 +1,8 @@
+%%
+[x_coord, y_coord] = pin_line_atPoint(10,pi/4,1,1,0,0)
+
+%%
+
 function draw_line(scr, varargin)
 th = 0;
 x = scr.xcenter;
@@ -28,7 +33,7 @@ end
 %%
 function [x_coord, y_coord] = pin_line_atPoint(lng,th,hor_ppd,ver_ppd,x,y)
 [lng_x,lng_y] = rotate_origin_vector(lng/2,th,hor_ppd,ver_ppd);
-x_coord = x - [-1, 1]*lng_x;
+x_coord = x + [-1, 1]*lng_x;
 y_coord = y + [-1, 1]*lng_y;
 end
 %% Function that gives pixel size in x and y coordinates separately for any vector with a certain angle:
