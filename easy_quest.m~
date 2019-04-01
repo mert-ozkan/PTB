@@ -93,7 +93,7 @@ switch mode
                 op.sd = QuestSd(qst);
             end
         end
-        varargout{1} = op;
+        varargout{1} = qst;
 end
 end
 %%
