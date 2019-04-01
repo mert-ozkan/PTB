@@ -37,7 +37,7 @@ y_cent = cfg.ycenter;
 
 [hor_shift, ver_shift] = rotate_origin_vector(dist_deCent,th_deInitPtVec,hor_ppd,ver_ppd);
 hor_coord = hor_coord + hor_shift + x_cent;
-ver_coord = ver_coord - ver_shift + y_cent;
+ver_coord = ver_coord + ver_shift + y_cent;
 end
 
 %% Function that gives pixel size in x and y coordinates separately for any vector with a certain angle:
@@ -45,7 +45,7 @@ function [hor_pix,ver_pix] = rotate_origin_vector(vec_lng,th,hor_ppd,ver_ppd)
 
 [x,y] = pol2cart(th, vec_lng);
 hor_pix = round(x*hor_ppd);
-ver_pix = round(y*ver_ppd);
+ver_pix = -1*round(y*ver_ppd); % pixel coordinates are flipped around y = 0
 
 end
 %%
