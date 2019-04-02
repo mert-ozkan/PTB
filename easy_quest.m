@@ -11,8 +11,8 @@ for idx = 1:length(varargin)
                 est_sd = varargin{idx+2};
                 threshold = .5;
                 est_beta = 3.5;
-                est_delta = 0.01;
-                est_gamma = 0.5;
+                est_delta = 0;
+                est_gamma = 0;
                 isNormPDF = true;
                 stim_tipX = 1;
             case 'Threshold'
