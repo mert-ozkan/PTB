@@ -11,7 +11,7 @@ isRxn = false;
 PsychHID('KbQueueStart'); PsychHID('KbQueueFlush');
 while ~isRxn
     [keyisdown,keycode] = PsychHID('KbQueueCheck');
-    if keyisdown
+    if keyisdown && length(find(keycode))==1
         key = KbName(find(keycode));
         if ~isKeyOpt || ismember(key,keys)
             isRxn = true;

@@ -66,6 +66,8 @@ switch command
             fprintf(f.id,'%s\n',f.experiment_ID);
             fprintf(f.id,'File Name:\t%s\n',f.filename);
         end
+    case 'close'
+        fclose(f.id);
     otherwise
         isPrintMat = false;
         switch command
