@@ -12,7 +12,7 @@ if keyisdown
     if strcmpi(key,'ESCAPE')
         isEndSxn = true;
         isRxn = false;
-    elseif ~isKeyOpt && ismember(key,keys)
+    elseif ~isKeyOpt && ismember(KbName(key),KbName(keys))
         isEndSxn = false;
         isRxn = true;
     end
