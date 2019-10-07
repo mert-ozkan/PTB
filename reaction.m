@@ -1,11 +1,22 @@
-function varargout = reaction(keys)
+function [isEndSxn, isRxn, key, rxn_t] = reaction(keys)
+% 'reaction' records the keyboard responses. It only register the keys
+% specified in the input and the 'Escape' key.
+% Input: is a cell array with key names.
+% Outputs:
+%   isEndSxn = true % if pressed escape
+%   isRxn = true % if pressed any other prespecified key
+%   key = 'string' % is the name of the key that's been pressed
+%   rxn_t = float % the key press time in the form of seconds
+%                   (to make it a real reaction time variable
+%                    you need to subtract it from an onset value).
+
 isKeyOpt = false;
 if nargin < 1
     isKeyOpt = true;
 end
 
 [keyisdown,keycode] = PsychHID('KbQueueCheck');
-if keyisdown
+if keyisdown && sum(keycode~=0)==1
     isEndSxn = false;
     isRxn = false;
     key = KbName(find(keycode));    
@@ -17,11 +28,11 @@ if keyisdown
         isRxn = true;
     end
     
-    varargout{1} = isEndSxn;
-    varargout{2} = isRxn;
-    varargout{3} = key;
-    varargout{4} = keycode(keycode~=false);
+    rxn_t = keycode(keycode~=false);
 else
-    varargout = {false, false, false, false};
+    isEndSxn = false;
+    isRxn = false;
+    key= false;
+    rxn_t= false;
 end
 end

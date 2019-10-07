@@ -1,4 +1,16 @@
 function draw_dots(win_ptr,x,y,varargin)
+%% Draws dots. Especially useful for putting the fixation target
+% Inpputs:
+%     win_ptr: window pointer
+%     x: x coordinates in pixels
+%     y: y coordinates in pixels
+%     ...'Size',number_of_pixels)
+%     ...'Flip') flip the frame or wait
+%     ...'Color',rgb) color of the fixation, default is white, rgb should be a vector
+%     ...'WaitSecs',secs) waits for 'secs' seconds
+        
+        
+        
 
 sz = 10;
 flip = false;

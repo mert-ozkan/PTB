@@ -1,4 +1,12 @@
-function draw_texts(w,text,x,y,varargin)
+function draw_texts(w,txtX,x,y,varargin)
+%% Draws texts
+% Inputs:
+%     w: window pointer
+%     text = cell array, each element is a line
+%     x, y: the position of the first line (vectors)
+%     'Size', fontsize)
+%     'Color', rgb) rgb is a vector
+%     'Flip' %flips the frame
 clr = [255 255 255 255];
 sz=10;
 isFlip=false;
@@ -17,12 +25,12 @@ for idx = 1:length(varargin)
 end
 Screen('TextSize',w,sz);
  
-if length(text)>1
-    for whText = 1:length(text)
-        Screen('DrawText',w,text{whText},x(whText),y(whText),clr);
+if length(txtX)>1
+    for whText = 1:length(txtX)
+        Screen('DrawText',w,txtX{whText},x(whText),y(whText),clr);
     end
 else
-    Screen('DrawText',w,text,x,y,clr);
+    Screen('DrawText',w,txtX,x,y,clr);
 end
  
 if isFlip
