@@ -1,4 +1,4 @@
-function draw_dots(win_ptr,x,y,varargin)
+function t = draw_dots(win_ptr,x,y,varargin)
 %% Draws dots. Especially useful for putting the fixation target
 % Inpputs:
 %     win_ptr: window pointer
@@ -35,8 +35,11 @@ end
 
 Screen('DrawDots', win_ptr,[x y], sz, fix_col, [], 2);
 if flip
-    Screen('Flip',win_ptr);
+    t = Screen('Flip',win_ptr);
+else
+    t = 0;
 end
+
 if wait
     WaitSecs(wait);
 end
