@@ -1,4 +1,4 @@
-function [isEndSxn, isRxn, key, rxn_t] = reaction(keys)
+function [isEndSxn, isRxn, key, rxn_t] = reaction(keyX,varargin)
 % 'reaction' records the keyboard responses. It only register the keys
 % specified in the input and the 'Escape' key.
 % Input: is a cell array with key names.
@@ -10,11 +10,31 @@ function [isEndSxn, isRxn, key, rxn_t] = reaction(keys)
 %                   (to make it a real reaction time variable
 %                    you need to subtract it from an onset value).
 
-isKeyOpt = false;
-if nargin < 1
-    isKeyOpt = true;
+isWait = false;
+isRxn = false;
+
+
+for idx = 1:length(varargin)
+    argN = varargin{idx};
+    switch argN           
+        case 'WaitForReaction'
+            isWait = true;
+            wait_dur = varargin{idx+1};
+            wait_till = GetSecs + wait_dur;
+    end
 end
 
+if isWait
+    while ~isRxn && GetSecs <= wait_till
+        [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX);
+        if isEndSxn, break; end
+    end
+else
+    [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX);
+end
+
+end
+function [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX)
 [keyisdown,keycode] = PsychHID('KbQueueCheck');
 if keyisdown && sum(keycode~=0)==1
     isEndSxn = false;
@@ -22,8 +42,7 @@ if keyisdown && sum(keycode~=0)==1
     key = KbName(find(keycode));    
     if strcmpi(key,'ESCAPE')
         isEndSxn = true;
-        isRxn = false;
-    elseif ~isKeyOpt && ismember(KbName(key),KbName(keys))
+    elseif ismember(KbName(key),KbName(keyX))
         isEndSxn = false;
         isRxn = true;
     end
