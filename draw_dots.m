@@ -1,4 +1,4 @@
-function t = draw_dots(win_ptr,x,y,varargin)
+function varargout = draw_dots(win_ptr,x,y,varargin)
 %% Draws dots. Especially useful for putting the fixation target
 % Inpputs:
 %     win_ptr: window pointer
@@ -14,8 +14,9 @@ function t = draw_dots(win_ptr,x,y,varargin)
 
 sz = 10;
 flip = false;
-wait = 0;
+wait_dur = 0;
 fix_col = [255, 255, 255, 255];
+varargout = {};
 
 for idx = 1:length(varargin)
     argN = varargin{idx};
@@ -28,7 +29,7 @@ for idx = 1:length(varargin)
             case 'Color'
                 fix_col = varargin{idx+1};
             case 'WaitSecs'
-                wait = varargin{idx+1};
+                wait_dur = varargin{idx+1};
         end
     end
 end
@@ -36,11 +37,14 @@ end
 Screen('DrawDots', win_ptr,[x y], sz, fix_col, [], 2);
 if flip
     t = Screen('Flip',win_ptr);
-else
-    t = 0;
+    varargout{end+1} = t;
 end
 
-if wait
-    WaitSecs(wait);
+if wait_dur
+    while GetSecs <= t+wait_dur
+        [isEndSxn, ~, ~, ~] = reaction({'escape'});
+        if isEndSxn, break; end
+    end
+    varargout{end+1} = isEndSxn;
 end
 end
