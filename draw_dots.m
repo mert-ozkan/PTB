@@ -45,6 +45,7 @@ if wait_dur
         [isEndSxn, ~, ~, ~] = reaction({'escape'});
         if isEndSxn, break; end
     end
+    PsychHID('KbQueueFlush');
     varargout{end+1} = isEndSxn;
 end
 end
