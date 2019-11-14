@@ -1,6 +1,8 @@
 function f = write_in_file(f,varargin)
-% rxnlog = write_inFile(file,'open',filename);
 
+if isempty(f), f=struct; end
+if ~isa(f,'struct'), f=struct; end
+if ~isfield(f,'directory'), f.directory=cd; end
 
 isUniq = true;
 isDateIn = false;
@@ -8,31 +10,34 @@ extension = '.txt';
 command = '';
 for idx = 1:length(varargin)
     argN = varargin{idx};
-    switch argN
-        case 'Open'
-            command = 'Open';
-        case 'FileName'
-            f_nm = varargin{idx+1};
-        case 'FileFormat'
-            extension = varargin{idx+1};
-        case 'UniqueFileName'
-            isUniq = varargin{idx+1};
-        case 'SpecifyDate'
-            isDateIn = true;
-        case 'Test'
-            isUniq = false;
-            isDateIn = false;
-            f_nm = 'test';
-        case 'Close'
-            fclose(f.id);
-        case 'w'
-            command = 'w';
-            sub_command = varargin{idx+1};
-            print_var = varargin{idx+2};
+    if isstring(argN) || ischar(argN)
+        switch argN
+            case 'Open'
+                command = 'Open';
+            case 'FileName'
+                f_nm = varargin{idx+1};
+            case 'FileFormat'
+                extension = varargin{idx+1};
+            case 'UniqueFileName'
+                isUniq = varargin{idx+1};
+            case 'SpecifyDate'
+                isDateIn = true;
+            case 'Test'
+                isUniq = false;
+                isDateIn = false;
+                f_nm = 'test';
+            case 'Close'
+                fclose(f.id);
+            case 'w'
+                command = 'w';
+                sub_command = varargin{idx+1};
+                print_var = varargin{idx+2};
+        end
     end
 end
 
 isPrintMat = false;
+isPrintTable = false;
 switch command
     case 'Open'
         if ~exist('f_nm','var')
@@ -60,11 +65,20 @@ switch command
                 delimiter = ', ';
             case 'matrix'
                 isPrintMat = true;
+            case 'table'
+                isPrintTable = true;
         end
         if isPrintMat
             print_matrix(f,print_var);
-        else
+        elseif isPrintTable
+            var_nmX = print_var.Properties.VariableNames;
+            for whVar = 1:length(var_nmX)-1
+                fprintf(f.id,'%s, ',var_nmX{whVar});
+            end
+            fprintf(f.id,'%s\n',var_nmX{end});
             
+            print_matrix(f,table2array(print_var));
+        else
             var_class = class(print_var);
             switch var_class
                 case 'char'
