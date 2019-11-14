@@ -1,4 +1,34 @@
 function f = write_in_file(f,varargin)
+% f = write_in_file(f,PropertyName)
+% Opens a text file in specified format, writes in it and closes it.
+% 
+% Inputs:
+% 	f (struct):
+% 		f.directory (= current_directory), save path
+% PropertyName:
+% 	(f, 'Open'):	opens a file
+% 	(f, 'Open', 'Test'): opens a file named ?test.txt?;
+% 	(f, 'Open, 'FileName, 'genericfilename'):  opens file with the name provided
+%   (f, 'Open, 'FileFormat', extension): opens the file in specified format
+%                                        default = .txt
+%   (f, 'Open', 'UniqueFileName', false):   opens file without a unique
+%                                           file identifier. default=true
+%   (f, 'Open', 'SpecifyDate'): Specifies current date in the filename
+%
+%   (f, 'Close'):   closes the file
+%
+%   (f,'w',',',var1):
+%         ,'tab',var1):
+%         ,'line',var1):
+%         ,'matrix',var1):
+%         ,'table',var1):
+%
+% Output:
+% 	f (struct):
+% 		f.directory
+% 		f.id
+% 	
+
 
 if isempty(f), f=struct; end
 if ~isa(f,'struct'), f=struct; end
