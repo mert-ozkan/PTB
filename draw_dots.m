@@ -36,12 +36,12 @@ end
 
 Screen('DrawDots', win_ptr,[x y], sz, fix_col, [], 2);
 if flip
-    t = Screen('Flip',win_ptr);
-    varargout{end+1} = t;
+    flip_t = Screen('Flip',win_ptr);
+    varargout{end+1} = flip_t;
 end
 
 if wait_dur
-    while GetSecs <= t+wait_dur
+    while GetSecs <= flip_t+wait_dur
         [isEndSxn, ~, ~, ~] = reaction({'escape'});
         if isEndSxn, break; end
     end

@@ -44,6 +44,7 @@ for idx = 1:length(varargin)
         switch argN
             case 'Open'
                 command = 'Open';
+                permission = 'w';
             case 'FileName'
                 f_nm = varargin{idx+1};
             case 'FileFormat'
@@ -54,8 +55,13 @@ for idx = 1:length(varargin)
                 isDateIn = true;
             case 'Test'
                 isUniq = false;
-                isDateIn = false;
                 f_nm = 'test';
+            case 'Append'
+                isUniq = false;
+                permission = 'a';
+                if ~ismember('FileName',varargin)
+                    error('You need to input a valid filename.');
+                end
             case 'Close'
                 fclose(f.id);
             case 'w'
@@ -84,7 +90,7 @@ switch command
         
         f_nm = join_path(f.directory,f_nm,'Extension',extension);
         
-        f.id = fopen(f_nm,'w');
+        f.id = fopen(f_nm,permission);
     case 'w'
         switch sub_command
             case 'line'
