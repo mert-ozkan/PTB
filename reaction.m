@@ -28,15 +28,15 @@ end
 
 if isWait
     while ~isRxn && GetSecs <= wait_till
-        [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX);
+        [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key);
         if isEndSxn, break; end
     end
 else
-    [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX);
+    [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key);
 end
 
 end
-function [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX)
+function [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key)
 [keyisdown,keycode] = PsychHID('KbQueueCheck');
 if keyisdown && sum(keycode~=0)==1
     isEndSxn = false;
