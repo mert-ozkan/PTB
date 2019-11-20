@@ -12,7 +12,7 @@ function [isEndSxn, isRxn, key, rxn_t] = reaction(keyX,varargin)
 
 isWait = false;
 isRxn = false;
-
+esc_key = 'escape';
 
 for idx = 1:length(varargin)
     argN = varargin{idx};
@@ -21,6 +21,8 @@ for idx = 1:length(varargin)
             isWait = true;
             wait_dur = varargin{idx+1};
             wait_till = GetSecs + wait_dur;
+        case 'SetEscapeKey'
+            esc_key = varargin{idx+1};
     end
 end
 
@@ -40,7 +42,7 @@ if keyisdown && sum(keycode~=0)==1
     isEndSxn = false;
     isRxn = false;
     key = KbName(find(keycode));    
-    if strcmpi(key,'ESCAPE')
+    if strcmpi(key,esc_key)
         isEndSxn = true;
     elseif ismember(KbName(key),KbName(keyX))
         isEndSxn = false;
