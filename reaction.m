@@ -11,26 +11,40 @@ function [isEndSxn, isRxn, key, rxn_t] = reaction(keyX,varargin)
 %                    you need to subtract it from an onset value).
 
 isWait = false;
+isWaitTill = false;
 isRxn = false;
 esc_key = 'escape';
 
 for idx = 1:length(varargin)
     argN = varargin{idx};
-    switch argN           
+    switch argN
         case 'WaitForReaction'
             isWait = true;
-            wait_dur = varargin{idx+1};
-            wait_till = GetSecs + wait_dur;
+            if length(varargin)>idx && isa(varargin{idx+1},'double')
+                wait_dur = varargin{idx+1};
+                wait_till = GetSecs + wait_dur;
+                isWaitTill = true;
+            end
+            
         case 'SetEscapeKey'
             esc_key = varargin{idx+1};
     end
 end
 
 if isWait
-    while ~isRxn && GetSecs <= wait_till
-        [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key);
-        if isEndSxn, break; end
+    PsychHID('KbQueueStart');
+    if isWaitTill
+        while ~isRxn && GetSecs <= wait_till
+            [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key);
+            if isEndSxn, break; end
+        end
+    else
+        while ~isRxn
+            [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key);
+            if isEndSxn, break; end
+        end
     end
+    PsychHID('KbQueueStop');
 else
     [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key);
 end
@@ -41,7 +55,7 @@ function [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key)
 if keyisdown && sum(keycode~=0)==1
     isEndSxn = false;
     isRxn = false;
-    key = KbName(find(keycode));    
+    key = KbName(find(keycode));
     if strcmpi(key,esc_key)
         isEndSxn = true;
     elseif ismember(KbName(key),KbName(keyX))

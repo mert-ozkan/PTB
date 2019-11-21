@@ -17,8 +17,6 @@ while ~isRxn
         key = KbName(find(keycode));
         if ~isKeyOpt || ismember(key,keys)
             isRxn = true;
-        else
-            isRxn = true;
         end
         if strcmpi(key,'escape')
             isEndSxn = true;

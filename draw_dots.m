@@ -41,6 +41,7 @@ if flip
 end
 
 if wait_dur
+    PsychHID('KbQueueStart');
     while GetSecs <= flip_t+wait_dur
         [isEndSxn, ~, ~, ~] = reaction({'escape'});
         if isEndSxn, break; end

@@ -57,11 +57,10 @@ for idx = 1:length(varargin)
                 isUniq = false;
                 f_nm = 'test';
             case 'Append'
+                command = 'Open';
                 isUniq = false;
                 permission = 'a';
-                if ~ismember('FileName',varargin)
-                    error('You need to input a valid filename.');
-                end
+                f_nm = varargin{idx+1};
             case 'Close'
                 fclose(f.id);
             case 'w'
@@ -74,10 +73,13 @@ end
 
 isPrintMat = false;
 isPrintTable = false;
+isExtensionIncld = false;
 switch command
     case 'Open'
         if ~exist('f_nm','var')
             f_nm = input('Name: ','s');
+        elseif ismember('.',f_nm)
+            isExtensionIncld = true;
         end
         
         if isDateIn
@@ -88,8 +90,13 @@ switch command
             f_nm = sprintf('%s_RandID%d',f_nm,randi(100000));
         end
         
-        f_nm = join_path(f.directory,f_nm,'Extension',extension);
+        if isExtensionIncld
+            f_nm = join_path(f.directory,f_nm);
+        else
+            f_nm = join_path(f.directory,f_nm,'Extension',extension);
+        end
         
+        f.name = f_nm;
         f.id = fopen(f_nm,permission);
     case 'w'
         switch sub_command
@@ -115,11 +122,10 @@ switch command
             
             print_matrix(f,table2array(print_var));
         else
-            var_class = class(print_var);
-            switch var_class
+            switch class(print_var)
                 case 'char'
                     notation = '%s';
-                case 'double'
+                case {'double','logical'}
                     notation = '%d';
             end
             fprintf(f.id,[notation,delimiter],print_var);
