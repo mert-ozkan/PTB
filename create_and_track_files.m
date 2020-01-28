@@ -48,8 +48,7 @@ if q_match == 1 && ~isTest
     isOKFile = input(sprintf('Is this the correct file that you want to append to?\n(Y/N)\t%s:\t',search_results{1}),'s');
     isOKFile = strcmpi(isOKFile,'y');
     if ~isOKFile
-        warning('Try again!');
-        create_and_track_files(varargin{:});
+        warning('!!!!!!! Try again with a UNIQUE file name! !!!!!!!');
     else
         f.directory = search_path;
         f = write_in_file(f,'Append',search_results{1});
@@ -72,7 +71,7 @@ elseif q_match < 1 || isTest
         varargout{1} = f;
         varargout{2} = true;
     else
-        warning('Okay!')
+        warning('!!!!!!! Try again with the CORRECT file name! !!!!!!!')
     end
 else
     disp_f_nmX = 'Multiple files with same identifier detected:\n';
