@@ -12,7 +12,9 @@ function [isEndSxn, isRxn, key, rxn_t] = reaction(keyX,varargin)
 
 isWait = false;
 isWaitTill = false;
+wait_till = inf;
 isRxn = false;
+kb_check_mode = 'PsychHID';
 esc_key = 'escape';
 
 for idx = 1:length(varargin)
@@ -28,29 +30,36 @@ for idx = 1:length(varargin)
             
         case 'SetEscapeKey'
             esc_key = varargin{idx+1};
+        case 'KbCheck'
+            kb_check_mode = argN;
     end
 end
 
-if isWait
-    PsychHID('KbQueueStart');
-    if isWaitTill
-        while ~isRxn && GetSecs <= wait_till
-            [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key);
-            if isEndSxn, break; end
+switch kb_check_mode
+    case 'PsychHID'
+        if isWait
+            PsychHID('KbQueueStart');
+            if isWaitTill
+                while ~isRxn && GetSecs <= wait_till
+                    [isEndSxn, isRxn, key, rxn_t] = check_queue(keyX,esc_key);
+                    if isEndSxn, break; end
+                end
+            else
+                while ~isRxn
+                    [isEndSxn, isRxn, key, rxn_t] = check_queue(keyX,esc_key);
+                    if isEndSxn, break; end
+                end
+            end
+            PsychHID('KbQueueStop');
+        else
+            [isEndSxn, isRxn, key, rxn_t] = check_queue(keyX,esc_key);
         end
-    else
-        while ~isRxn
-            [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key);
-            if isEndSxn, break; end
-        end
-    end
-    PsychHID('KbQueueStop');
-else
-    [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key);
+    case 'KbCheck'
+        [isEndSxn, isRxn, key, rxn_t] = check_kb(keyX,esc_key,isWait,wait_till);
 end
 
 end
-function [isEndSxn, isRxn, key, rxn_t] = check_kb_queue(keyX,esc_key)
+function [isEndSxn, isRxn, key, rxn_t] = check_queue(keyX,esc_key)
 [keyisdown,keycode] = PsychHID('KbQueueCheck');
 if keyisdown && sum(keycode~=0)==1
     isEndSxn = false;
@@ -70,4 +79,43 @@ else
     key= false;
     rxn_t= false;
 end
+end
+function [isEndSxn, isRxn, key, rxn_t] = check_kb(keyX,esc_key,isWait,wait_till)
+
+isEndSxn = false;
+isRxn = false;
+
+if isWait
+    while ~(isEndSxn || isRxn) && GetSecs <= wait_till
+        % This code is REDUNDANT
+        [secs, key_code, ~] = KbWait([],[],wait_till);
+        
+        [isEndSxn, isRxn, key, rxn_t] = verify_key(esc_key,keyX,secs,key_code);
+    end
+else
+    [keyIsDown, secs, key_code, ~] = KbCheck;
+    
+    if keyIsDown
+        [isEndSxn, isRxn, key, rxn_t] = verify_key(esc_key,keyX,secs,key_code);
+    end
+    
+end
+end
+function [isEndSxn, isRxn, key, rxn_t] = verify_key(esc_key,keyX,secs,key_code)
+key = KbName(find(key_code));
+
+if strcmpi(key,esc_key)
+    isEndSxn = true;
+    isRxn = false;
+    rxn_t = false;
+elseif ismember(KbName(key),KbName(keyX))
+    isEndSxn = false;
+    isRxn = true;
+    rxn_t = secs;
+else
+    isEndSxn = false;
+    isRxn = false;
+    key = false;
+    rxn_t = false;
+end 
 end
