@@ -7,6 +7,7 @@ format_spec = '';
 content_spec = '';
 ignore_spec = '';
 isIgnore = false;
+isFullPath2File = false;
 idx = 1;
 while idx <= length(varargin)
     argN = varargin{idx};
@@ -44,6 +45,9 @@ while idx <= length(varargin)
             end
             format_spec = sprintf('*%s',frmt);
             idx = idx+2;
+        case 'FullPath2File'
+            isFullPath2File = true;
+            idx = idx+1;
         otherwise
             keywordX = varargin{idx};
             if iscell(keywordX)
@@ -95,5 +99,10 @@ end
 
 if isempty(filenames)
     warning('No match found!')
+elseif isFullPath2File
+    for whF = 1:length(filenames)
+        filenames{whF} = join_path(search_path,filenames{whF});
+    end
 end
+
 end
