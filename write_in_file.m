@@ -36,6 +36,7 @@ if ~isfield(f,'directory'), f.directory=cd; end
 
 isUniq = true;
 isDateIn = false;
+isPrintVarNmInTbl = true;
 extension = '.txt';
 command = '';
 for idx = 1:length(varargin)
@@ -61,6 +62,8 @@ for idx = 1:length(varargin)
                 isUniq = false;
                 permission = 'a';
                 f_nm = varargin{idx+1};
+            case 'DoNotPrintVariableNames'
+                isPrintVarNmInTbl = varargin{idx+1};
             case 'Close'
                 fclose(f.id);
             case 'w'
@@ -72,7 +75,7 @@ for idx = 1:length(varargin)
 end
 
 isPrintMat = false;
-isPrintTable = false;
+isPrintTbl = false;
 isExtensionIncld = false;
 switch command
     case 'Open'
@@ -109,23 +112,33 @@ switch command
             case 'matrix'
                 isPrintMat = true;
             case 'table'
-                isPrintTable = true;
+                isPrintTbl = true;
         end
+        
         if isPrintMat
             print_matrix(f,print_var);
-        elseif isPrintTable
-            var_nmX = print_var.Properties.VariableNames;
-            for whVar = 1:length(var_nmX)-1
-                fprintf(f.id,'%s, ',var_nmX{whVar});
-            end
-            fprintf(f.id,'%s\n',var_nmX{end});
+        elseif isPrintTbl
             
-            print_matrix(f,table2array(print_var));
+            var_nmX = print_var.Properties.VariableNames;
+
+            if isPrintVarNmInTbl
+                var_nmX = print_var.Properties.VariableNames;
+                for whVar = 1:length(var_nmX)-1
+                    fprintf(f.id,'%s, ',var_nmX{whVar});
+                end
+                fprintf(f.id,'%s\n',var_nmX{end});
+            end
+            
+            for whVar = 1:length(var_nmX)-1
+                for idx = 1:height(print_var)
+                     write_in_file(f,'w',',',print_var.(whVar)(idx));
+                end
+            end
         else
             switch class(print_var)
                 case 'char'
                     notation = '%s';
-                case {'double','logical'}
+                case {'double','logical','float'}
                     notation = '%d';
             end
             fprintf(f.id,[notation,delimiter],print_var);
