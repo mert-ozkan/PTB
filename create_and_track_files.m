@@ -15,8 +15,13 @@ while idx <= length(varargin)
         idx = idx+1;
     else
         switch argN
-            case {'test','Test'}
+            case {'test','try','debug','Test','Try','Debug'}
                 content = 'test';
+                isTest = true;
+                isUniq = false;
+                isDateIn = false;
+                idx = idx+1;
+            case 'DebugModeOn'
                 isTest = true;
                 isUniq = false;
                 isDateIn = false;
@@ -60,7 +65,7 @@ elseif q_match < 1 || isTest
     if  strcmpi(isCreateFile,'y')
         f.directory = search_path;
         if isTest
-            f = write_in_file(f,'Open','Test','FileFormat','.csv');
+            f = write_in_file(f,'Open','FileName',content,'FileFormat','.csv','UniqueFileName',isUniq);
         else
             if isDateIn
                 f = write_in_file(f,'Open','FileName',content,'SpecifyDate','FileFormat',f_fmt,'UniqueFileName',isUniq);

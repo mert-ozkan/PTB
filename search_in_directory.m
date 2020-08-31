@@ -6,7 +6,9 @@ end_spec = '';
 format_spec = '';
 content_spec = '';
 ignore_spec = '';
+ignore_specN = '';
 isIgnore = false;
+isIgnoreOr = false;
 isFullPath2File = false;
 idx = 1;
 while idx <= length(varargin)
@@ -19,17 +21,15 @@ while idx <= length(varargin)
             end_spec = sprintf('%s.*',varargin{idx+1});
             idx = idx+2;
         case 'Ignore'
-            ignoreX = varargin{idx+1};
-            isIgnore = ~isempty(ignoreX);
-            if iscell(ignoreX)
-                for whIgnore = ignoreX
-                    ignore_spec = sprintf('%s%s*',ignore_spec,whIgnore);
-                end
-                if ~strcmp('*',ignore_spec(1))
-                    ignore_spec = sprintf('*%s',ignore_spec);
-                end
+            if ~exist('ignoreX','var')
+                ignoreX = varargin{idx+1};
+                isIgnore = ~isempty(ignoreX);
+                ignore_spec = create_ignore_spec(ignoreX);
             else
-                ignore_spec = sprintf('*%s*',ignoreX);
+                ignoreX = varargin{idx+1};
+                ignore_specN = create_ignore_spec(ignoreX);
+                ignore_spec = [ignore_spec, ignore_specN];
+                isIgnoreOr = true;
             end
             idx = idx+2;
         case 'Is'
@@ -86,15 +86,13 @@ for whF = 1:length(search_results)
 end
 
 if isIgnore
-    ignore_spec = join_path(search_path,ignore_spec);
-    ignore_results = dir(ignore_spec);
-    ignore_filenames = {};
-    for whF = 1:length(ignore_results)
-        ignore_filenames{end+1} = ignore_results(whF).name;
+    if isIgnoreOr
+        for whIgnore = ignore_spec
+            filenames = ignore_function(search_path,whIgnore,filenames);
+        end
+    else
+        filenames = ignore_function(search_path,ignore_spec,filenames);
     end
-    
-    idx_ignore = ismember(filenames,ignore_filenames);
-    filenames(idx_ignore) = [];
 end
 
 if isempty(filenames)
@@ -105,4 +103,29 @@ elseif isFullPath2File
     end
 end
 
+end
+function filenames = ignore_function(search_path,ignore_spec,filenames)
+ignore_spec = join_path(search_path,ignore_spec);
+ignore_results = dir(ignore_spec);
+ignore_filenames = {};
+for whF = 1:length(ignore_results)
+    ignore_filenames{end+1} = ignore_results(whF).name;
+end
+
+idx_ignore = ismember(filenames,ignore_filenames);
+filenames(idx_ignore) = [];
+end
+function ignore_spec = create_ignore_spec(ignoreX)
+ignore_spec = '';
+if iscell(ignoreX)
+    for whIgnore = ignoreX
+        ignore_spec = sprintf('%s%s*',ignore_spec,whIgnore{:});
+    end
+    if ~strcmp('*',ignore_spec(1))
+        ignore_spec = sprintf('*%s',ignore_spec);
+    end
+else
+    ignore_spec = sprintf('*%s*',ignoreX);
+end
+ignore_spec = string(ignore_spec);
 end

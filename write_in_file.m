@@ -62,7 +62,7 @@ for idx = 1:length(varargin)
                 isUniq = false;
                 permission = 'a';
                 f_nm = varargin{idx+1};
-            case 'DoNotPrintVariableNames'
+            case 'PrintVariableNames'
                 isPrintVarNmInTbl = varargin{idx+1};
             case 'Close'
                 fclose(f.id);
@@ -113,6 +113,8 @@ switch command
                 isPrintMat = true;
             case 'table'
                 isPrintTbl = true;
+            otherwise
+                delimiter = sub_command;
         end
         
         if isPrintMat
@@ -129,19 +131,32 @@ switch command
                 fprintf(f.id,'%s\n',var_nmX{end});
             end
             
-            for whVar = 1:length(var_nmX)-1
-                for idx = 1:height(print_var)
-                     write_in_file(f,'w',',',print_var.(whVar)(idx));
+            for idx = 1:height(print_var)
+                for whVar = var_nmX(1:end-1)
+                    write_in_file(f,'w',',',print_var.(whVar{:})(idx));
                 end
+                write_in_file(f,'w','line',print_var.(var_nmX{end})(idx));
             end
         else
+            isCell = false;
             switch class(print_var)
-                case 'char'
+                case {'char','string'}
                     notation = '%s';
                 case {'double','logical','float'}
                     notation = '%d';
+                case 'datetime'
+                    print_var = string(print_var);
+                    notation = '%s';
+                case 'cell'
+                    write_in_file(f,'w',delimiter,print_var{:})
+                    isCell = true;
             end
-            fprintf(f.id,[notation,delimiter],print_var);
+            if ~isCell
+                try
+                    fprintf(f.id,[notation,delimiter],print_var);
+                catch
+                end
+            end
         end
 end
 end
