@@ -6,7 +6,7 @@ f_fmt ='.csv';
 isUniq = true;
 isDateIn = true;
 isTest = false;
-ignore_content = '';
+ignore_command = '';
 idx = 1;
 while idx <= length(varargin)
     argN = varargin{idx};
@@ -36,7 +36,13 @@ while idx <= length(varargin)
                 isDateIn = false;
                 idx = idx+1;
             case 'Ignore'
-                ignore_content = varargin{idx+1};
+                ignore_command = {'Ignore',varargin{idx+1}};
+                idx = idx+2;
+            case 'IgnoreOr'
+                ignore_command = [];
+                for whIgnore = varargin{idx+1}
+                    ignore_command = [ignore_command, 'Ignore', whIgnore];
+                end
                 idx = idx+2;
             otherwise
                 content = argN;
@@ -45,7 +51,7 @@ while idx <= length(varargin)
     end
 end
 
-search_results = search_in_directory(search_path, content, 'FileFormat', f_fmt, 'Ignore', ignore_content);
+search_results = search_in_directory(search_path, content, 'FileFormat', f_fmt, ignore_command{:});
 
 
 q_match = length(search_results);
