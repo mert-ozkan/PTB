@@ -37,8 +37,10 @@ if ~isfield(f,'directory'), f.directory=cd; end
 isUniq = true;
 isDateIn = false;
 isPrintVarNmInTbl = true;
+isVarSpecificPrecision = false;
 extension = '.txt';
 command = '';
+precision = [];
 for idx = 1:length(varargin)
     argN = varargin{idx};
     if isstring(argN) || ischar(argN)
@@ -66,6 +68,22 @@ for idx = 1:length(varargin)
                 isPrintVarNmInTbl = varargin{idx+1};
             case 'Close'
                 fclose(f.id);
+            case 'DoublePrecision'
+                precision = varargin{idx+1};
+            case 'VariableSpecificPrecision'
+                cmd_spec = varargin{idx+1};
+                
+                var_precision_nm = strings(0);
+                for whVar = cmd_spec(1:2:length(cmd_spec))
+                    switch class(whVar{:})
+                        case 'double'
+                            var_precision_nm(end+1) = sprintf('Var%d',whVar{:});
+                        otherwise
+                            var_precision_nm(end+1) = whVar{:};
+                    end
+                end
+                var_precision = cmd_spec(2:2:length(cmd_spec));  
+                isVarSpecificPrecision = true;
             case 'w'
                 command = 'w';
                 sub_command = varargin{idx+1};
@@ -111,20 +129,25 @@ switch command
                 delimiter = ', ';
             case 'matrix'
                 isPrintMat = true;
+                precision_command = {'DoublePrecision',precision};
             case 'table'
                 isPrintTbl = true;
+                precision_command = {'DoublePrecision',precision};
             otherwise
                 delimiter = sub_command;
         end
         
         if isPrintMat
-            print_matrix(f,print_var);
+            print_matrix(f,print_var,precision_command{:});
         elseif isPrintTbl
             
             var_nmX = print_var.Properties.VariableNames;
+            precision_command = array2table(repmat(precision_command',1,length(var_nmX)),'VariableNames',var_nmX);
+            if isVarSpecificPrecision
+                precision_command{2,var_precision_nm} = var_precision;
+            end
 
             if isPrintVarNmInTbl
-                var_nmX = print_var.Properties.VariableNames;
                 for whVar = 1:length(var_nmX)-1
                     fprintf(f.id,'%s, ',var_nmX{whVar});
                 end
@@ -133,23 +156,29 @@ switch command
             
             for idx = 1:height(print_var)
                 for whVar = var_nmX(1:end-1)
-                    write_in_file(f,'w',',',print_var.(whVar{:})(idx));
+                    write_in_file(f,'w',',',print_var.(whVar{:})(idx),precision_command{:,whVar}{:});
                 end
-                write_in_file(f,'w','line',print_var.(var_nmX{end})(idx));
+                write_in_file(f,'w','line',print_var.(var_nmX{end})(idx),precision_command{:,whVar}{:});
             end
         else
             isCell = false;
-            switch class(print_var)
-                case {'char','string'}
-                    notation = '%s';
-                case {'double','logical','float'}
-                    notation = '%d';
-                case 'datetime'
-                    print_var = string(print_var);
-                    notation = '%s';
-                case 'cell'
-                    write_in_file(f,'w',delimiter,print_var{:})
-                    isCell = true;
+            if ~exist('notation','var')
+                switch class(print_var)
+                    case {'char','string'}
+                        notation = '%s';
+                    case {'double','logical','float'}
+                        if isempty(precision)
+                            notation = '%d';
+                        else
+                            notation = sprintf('%%.%df',precision);
+                        end
+                    case 'datetime'
+                        print_var = string(print_var);
+                        notation = '%s';
+                    case 'cell'
+                        write_in_file(f,'w',delimiter,print_var{:});
+                        isCell = true;
+                end
             end
             if ~isCell
                 try
@@ -161,16 +190,16 @@ switch command
 end
 end
 %%
-function print_matrix(f,mat)
+function print_matrix(f,mat,command)
 
 [q_row, q_col] = size(mat);
 for whRow = 1:q_row
-    whCol = 1;
-    while whCol < q_col
-        write_in_file(f,'w',',',mat(whRow,whCol));
-        whCol = whCol + 1;
+    for whCol = 1:q_col-1
+        if whCmd
+            write_in_file(f,'w',',',mat(whRow,whCol),command{:});
+        end
     end
-    write_in_file(f,'w','line',mat(whRow,whCol));
+    write_in_file(f,'w','line',mat(whRow,whCol),command{:});
 end
 
 end

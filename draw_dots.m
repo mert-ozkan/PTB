@@ -1,4 +1,4 @@
-function varargout = draw_dots(win_ptr,x,y,varargin)
+ function varargout = draw_dots(win_ptr,x,y,varargin)
 %% Draws dots. Especially useful for putting the fixation target
 % Inpputs:
 %     win_ptr: window pointer
@@ -13,10 +13,10 @@ function varargout = draw_dots(win_ptr,x,y,varargin)
         
 
 sz = 10;
-flip = false;
-wait_dur = 0;
-fix_col = [255, 255, 255, 255];
-varargout = {};
+isFlip = false;
+isWait = false;
+dot_col = [255, 255, 255, 255];
+varargout ={};
 
 for idx = 1:length(varargin)
     argN = varargin{idx};
@@ -25,28 +25,43 @@ for idx = 1:length(varargin)
             case 'Size'
                 sz = varargin{idx+1};
             case 'Flip'
-                flip = true;
+                isFlip = true;
             case 'Color'
-                fix_col = varargin{idx+1};
+                dot_col = varargin{idx+1};
             case 'WaitSecs'
                 wait_dur = varargin{idx+1};
+                isWait = true;
+            case 'WaitTill'
+                wait_till = varargin{idx+1};
+                isWait = true;
         end
     end
 end
 
-Screen('DrawDots', win_ptr,[x y], sz, fix_col, [], 2);
-if flip
+Screen('DrawDots', win_ptr,[x y], sz, dot_col, [], 2);
+if isFlip
     flip_t = Screen('Flip',win_ptr);
-    varargout{end+1} = flip_t;
 end
 
-if wait_dur
+if isWait
+    
+    if ~exist('wait_till','var')
+        wait_till = flip_t + wait_dur;
+    end
+    
     PsychHID('KbQueueStart');
-    while GetSecs <= flip_t+wait_dur
+    while GetSecs <= wait_till
         [isEndSxn, ~, ~, ~] = reaction({'escape'});
         if isEndSxn, break; end
     end
     PsychHID('KbQueueFlush');
     varargout{end+1} = isEndSxn;
 end
+
+if isFlip
+    varargout{end+1} = flip_t;
+end
+
+% Time of the end of execution;
+varargout{end+1} = GetSecs;
 end

@@ -1,7 +1,7 @@
 function [op]=openexperimentwindow(cfg)
 %% cfg.mode = 'openwindow';
 %   cfg.skipsynctests = 1;
-%   cfg.debugrect = 0;
+%   cfg.debugrect = 0
 %   cfg.backgroundcolor = [127 127 127 255];
 %   cfg.blendfunction = 'no';
 %   cfg.sourcefactor
@@ -30,7 +30,10 @@ switch cfg.mode
         
         
         screens = Screen('Screens');
-        screenNumber = max(screens);
+        screen_number = max(screens);
+        if isfield(cfg,'DisplayScreenIsMain') && cfg.DisplayScreenIsMain
+            screen_number = min(screens);
+        end
         
         if cfg.debugrect == 1
             rect =  [800 400 1440 850];
@@ -43,10 +46,10 @@ switch cfg.mode
         
         
         [window, windowRect] = PsychImaging('OpenWindow',...
-            screenNumber, cfg.backgroundcolor,rect);
+            screen_number, cfg.backgroundcolor,rect);
         [wid_inpix, height_inpix] = Screen('WindowSize', window); % sz in px
         [xCenter, yCenter] = RectCenter(windowRect);
-        [wid_incm, height_incm] = Screen('DisplaySize', screenNumber); % phys sz in mm
+        [wid_incm, height_incm] = Screen('DisplaySize', screen_number); % phys sz in mm
         
         framerate = FrameRate(window);
         
@@ -61,8 +64,9 @@ switch cfg.mode
                 disp('No blending function is being used.');
         end
         
+
         [ppd_h,ppd_v] = deg2pix(1,cfg.viewingdistance,window);
-        
+      
         op.windowptr = window;
         op.windowrect = windowRect;
         op.widthinpix = wid_inpix;
